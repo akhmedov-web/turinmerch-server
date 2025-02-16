@@ -24,6 +24,29 @@ const main = () => {
         `
         Assalomu alaykum <b>${msg.from.first_name}!</b> 
             \nWe're happy to see you there😊
+            \nShare your phone number to get started!`,
+        {
+          parse_mode: "HTML",
+          reply_markup: {
+            keyboard: [
+              [
+                {
+                  text: "📞 Share My Phone Number",
+                  request_contact: true,
+                },
+              ],
+            ],
+            resize_keyboard: true,
+            one_time_keyboard: true,
+          },
+        }
+      );
+    }
+    if (msg.contact) {
+      await bot.sendMessage(
+        chatId,
+        `
+        <b>You're all set! 😊</b> 
             \nClick <b>'Products 📦'</b> button to start the shopping.`,
         {
           parse_mode: "HTML",
@@ -152,27 +175,3 @@ app.post("/web-data", async (req, res) => {
 app.listen(process.env.PORT || 8000, () => console.log("Server started!"));
 
 main();
-
-// import TelegramBot from "node-telegram-bot-api";
-
-// // Replace with your actual bot token
-// const token = "7757829354:AAHWc9IqCpAAcrK28YsNX-mo3cPqGupgzcI";
-
-// const bot = new TelegramBot(token, { polling: true });
-
-// console.log("🤖 Bot is running...");
-
-// // Respond with "hello" when user sends /start
-// bot.on("message", (msg) => {
-//   const chatId = msg.chat.id;
-//   const text = msg.text;
-
-//   if (text === "/start") {
-//     bot.sendMessage(chatId, "hello");
-//   }
-// });
-
-// // Log any polling errors
-// bot.on("polling_error", (error) => {
-//   console.error("Polling error:", error);
-// });
