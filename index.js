@@ -119,8 +119,13 @@ app.post("/web-data", async (req, res) => {
       userID,
       `<b>Your order has been successfully created✅</b>
       \n<b>Order Details:</b> \n${productDetails} 
-      \n<b>Total:</b> ${totalPrice}
-      \n<b>Account number:</b> 9860 1901 1084 9378 (Shohbaxt Axmedov)
+      \n<b>Total:</b> ${totalPrice}`,
+      { parse_mode: "HTML" }
+    );
+
+    await bot.sendMessage(
+      userID,
+      `<b>Card number:</b> 9860 1901 1084 9378 (Shohbaxt Axmedov)
       \n<b>After making the payment, send a payment receipt to @akhmedov_mailbox to complete the order.</b>
       \n<b>Thanks for shopping with us! 🎉</b>`,
       { parse_mode: "HTML" }
