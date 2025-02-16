@@ -1,0 +1,142 @@
+import TelegramBot from "node-telegram-bot-api";
+import express from "express";
+import cors from "cors";
+
+const token = "7616031779:AAHVBltvv_tvzTQjWbU4KpoAQ3RuBoubYWg";
+
+const bot = new TelegramBot(token, { polling: true });
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+const main = () => {
+  bot.on("message", async (msg) => {
+    const chatId = msg.chat.id;
+    const text = msg.text;
+
+    if (text === "/start") {
+      await bot.sendMessage(
+        chatId,
+        `Assalomu alaykum <b>${msg.from.first_name}!</b> 
+            \nDo you want to congratulate your friend on their birthday?
+            \nThen click <b>"Congratulate 🎉"</b> button below!`,
+        {
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "Congratulate 🎉",
+                  web_app: {
+                    url: "https://hbd-polito.vercel.app/new",
+                  },
+                },
+                {
+                  text: "About ℹ️",
+                  callback_data: "aboutOpt",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    }
+  });
+
+  // Handle callback
+  bot.on("callback_query", (query) => {
+    console.log(query);
+    const chatId = query.message?.chat?.id;
+    if (query.data === "aboutOpt") {
+      bot.sendMessage(
+        chatId,
+        `<b>Welcome to HBD Polito Bot!🎓</b>
+        \nWe’ve designed this mini-app to make celebrations more special. Use the bot to submit a form and see your congratulatory messages on the university’s TV monitors. 
+        \nThank you for spreading positivity around campus! ✨
+        \nDeveloped with care.`,
+        { parse_mode: "HTML" }
+      );
+    }
+  });
+};
+
+bot.on("polling_error", (error) => {
+  console.error("Polling error:", error);
+});
+
+const ADMIN_CHAT_ID = "1113965699"; // Replace with the actual admin's chat ID
+
+app.post("/web-data", async (req, res) => {
+  const { products, userID } = req.body;
+
+  // Fetch user information (name, username)
+  const user = await bot.getChat(userID);
+  const userName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+  const userHandle = user.username ? `@${user.username}` : "No username";
+
+  try {
+    // Format the product details
+    const productDetails = products
+      .map((item, index) => {
+        const totalItemPrice = item.price * item.quantity;
+        return `<b>${index + 1}. ${item.title}</b>\n   ${
+          item.quantity
+        } x ${item.price
+          .toLocaleString("uz-UZ", {
+            style: "currency",
+            currency: "UZS",
+            minimumFractionDigits: 0,
+          })
+          .replace("UZS", "so'm")} = ${totalItemPrice
+          .toLocaleString("uz-UZ", {
+            style: "currency",
+            currency: "UZS",
+            minimumFractionDigits: 0,
+          })
+          .replace("UZS", "so'm")}`;
+      })
+      .join("\n\n");
+
+    // Calculate the total price
+    const totalPrice = products
+      .reduce((a, c) => a + c.price * c.quantity, 0)
+      .toLocaleString("uz-UZ", {
+        style: "currency",
+        currency: "UZS",
+        minimumFractionDigits: 0,
+      })
+      .replace("UZS", "so'm");
+
+    // 2. Send order confirmation & payment details to the user
+    await bot.sendMessage(
+      userID,
+      `<b>Your order has been successfully created✅</b>
+      \n<b>Order Details:</b> \n${productDetails} 
+      \n<b>Total:</b> ${totalPrice}
+      \n<b>Account number:</b> 9860 1901 1084 9378 (Shohbaxt Axmedov)
+      \n<b>After making the payment, send a payment receipt to @akhmedov_mailbox to complete the order.</b>
+      \n<b>Thanks for shopping with us! 🎉</b>`,
+      { parse_mode: "HTML" }
+    );
+
+    // 3. Send order details to the admin
+    await bot.sendMessage(
+      ADMIN_CHAT_ID,
+      `<b>🚨 New Order Received!</b>\n
+<b>Name:</b> ${userName}
+<b>Username:</b> ${userHandle}
+      \n<b>Order Details:</b>\n${productDetails}
+      \n<b>Total:</b> ${totalPrice}`,
+      { parse_mode: "HTML" }
+    );
+
+    return res.status(200).json({});
+  } catch (error) {
+    console.error("Error processing order:", error);
+    return res.status(500).json({});
+  }
+});
+
+app.listen(process.env.PORT || 8000, () => console.log("Server started!"));
+
+main();
