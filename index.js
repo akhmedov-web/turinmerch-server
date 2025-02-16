@@ -3,18 +3,19 @@ import express from "express";
 import cors from "cors";
 
 const token = "7757829354:AAHWc9IqCpAAcrK28YsNX-mo3cPqGupgzcI";
-
 const bot = new TelegramBot(token, { polling: true });
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 
-// Set webhook
-const webhookUrl = `https://turinmerch-server.onrender.com/webhook`;
-bot.setWebHook(webhookUrl);
+// Store user phone numbers
+const userPhoneNumbers = new Map();
 
+const ADMIN_CHAT_ID = "1113965699"; // Replace with the actual admin's chat ID
+
+// Main bot logic
 const main = () => {
-  const userPhoneNumbers = new Map();
   bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -22,50 +23,32 @@ const main = () => {
     if (text === "/start") {
       await bot.sendMessage(
         chatId,
-        `
-        Assalomu alaykum <b>${msg.from.first_name}!</b> 
-            \nWe're happy to see you there😊
-            \nShare your phone number to get started!`,
+        `Assalomu alaykum <b>${msg.from.first_name}!</b> \nShare your phone number to get started!`,
         {
           parse_mode: "HTML",
           reply_markup: {
-            keyboard: [
-              [
-                {
-                  text: "📞 Share My Phone Number",
-                  request_contact: true,
-                },
-              ],
-            ],
+            keyboard: [[{ text: "📞 Share My Phone Number", request_contact: true }]],
             resize_keyboard: true,
             one_time_keyboard: true,
           },
         }
       );
     }
-    if (msg.contact) {  
+
+    if (msg.contact) {
       const phoneNumber = msg.contact.phone_number;
-    userPhoneNumbers.set(chatId, phoneNumber); // Store the phone number
+      userPhoneNumbers.set(chatId, phoneNumber);
+
       await bot.sendMessage(
         chatId,
-        `
-        <b>You're all set! 😊</b> 
-            \nClick <b>'Products 📦'</b> button to start the shopping.`,
+        "<b>You're all set! 😊</b>\nClick 'Products 📦' to start shopping.",
         {
           parse_mode: "HTML",
           reply_markup: {
             inline_keyboard: [
               [
-                {
-                  text: "Products 📦",
-                  web_app: {
-                    url: "https://merch-polito.vercel.app/",
-                  },
-                },
-                {
-                  text: "About ℹ️",
-                  callback_data: "aboutOpt",
-                },
+                { text: "Products 📦", web_app: { url: "https://merch-polito.vercel.app/" } },
+                { text: "About ℹ️", callback_data: "aboutOpt" },
               ],
             ],
           },
@@ -74,109 +57,73 @@ const main = () => {
     }
   });
 
-  // Handle callback
+  // Handle callbacks
   bot.on("callback_query", (query) => {
-    console.log(query);
     const chatId = query.message?.chat?.id;
+
     if (query.data === "aboutOpt") {
       bot.sendMessage(
         chatId,
-        `
-        <b>TTPU's official merchandise bot!🎓</b>
-        \nHere, you’ll find exclusive items like hoodies, mugs, notebooks, and more, designed to showcase our university pride. 
-        \nFor assistance or inquiries, reach out to us at: @akhmedov_mailbox
-        \nShop easily, support the campus, and stay stylish! ✨
-        \nDeveloped with care.`,
+        `<b>TTPU's official merchandise bot!🎓</b>\nFind exclusive items to showcase our university pride.`,
         { parse_mode: "HTML" }
       );
     }
   });
 };
 
-bot.on("polling_error", (error) => {
-  console.error("Polling error:", error);
-});
-
-const ADMIN_CHAT_ID = "1113965699"; // Replace with the actual admin's chat ID
-
+// Handle incoming orders from the web app
 app.post("/web-data", async (req, res) => {
-  const { products, userID } = req.body;
-
-  // Fetch user information (name, username)
-  const user = await bot.getChat(userID);
-  const userName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
-  const userHandle = user.username ? `@${user.username}` : "No username";
-
   try {
-    const phoneNumber = userPhoneNumbers.get(userID);
-    // Format the product details
+    const { products, userID } = req.body;
+
+    if (!userID || !products || !products.length) {
+      return res.status(400).json({ error: "Invalid request data." });
+    }
+
+    const user = await bot.getChat(userID);
+    const userName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+    const userHandle = user.username ? `@${user.username}` : "No username";
+
+    const phoneNumber = userPhoneNumbers.get(userID) || "Unknown";
+
     const productDetails = products
       .map((item, index) => {
         const totalItemPrice = item.price * item.quantity;
-        return `<b>${index + 1}. ${item.title}</b>\n   ${
-          item.quantity
-        } x ${item.price
-          .toLocaleString("uz-UZ", {
-            style: "currency",
-            currency: "UZS",
-            minimumFractionDigits: 0,
-          })
-          .replace("UZS", "so'm")} = ${totalItemPrice
-          .toLocaleString("uz-UZ", {
-            style: "currency",
-            currency: "UZS",
-            minimumFractionDigits: 0,
-          })
-          .replace("UZS", "so'm")}`;
+        return `<b>${index + 1}. ${item.title}</b>\n${item.quantity} x ${item.price} so'm = ${totalItemPrice} so'm`;
       })
       .join("\n\n");
 
-    // Calculate the total price
-    const totalPrice = products
-      .reduce((a, c) => a + c.price * c.quantity, 0)
-      .toLocaleString("uz-UZ", {
-        style: "currency",
-        currency: "UZS",
-        minimumFractionDigits: 0,
-      })
-      .replace("UZS", "so'm");
+    const totalPrice = products.reduce((a, c) => a + c.price * c.quantity, 0) + " so'm";
 
-    // 2. Send order confirmation & payment details to the user
+    // Confirm order to user
     await bot.sendMessage(
       userID,
-      `<b>Your order has been successfully created✅</b>
-      \n<b>Order Details:</b> \n${productDetails} 
-      \n<b>Total:</b> ${totalPrice}`,
+      `<b>Your order is successfully created ✅</b>\n\n<b>Order Details:</b>\n${productDetails}\n\n<b>Total:</b> ${totalPrice}`,
       { parse_mode: "HTML" }
     );
 
     await bot.sendMessage(
       userID,
-      `<b>Card number:</b> 9860 1901 1084 9378 (Shohbaxt Axmedov)
-      \n<b>After making the payment, send a payment receipt to @akhmedov_mailbox to complete the order.</b>
-      \n<b>Thanks for shopping with us! 🎉</b>`,
+      `<b>Card number:</b> 9860 1901 1084 9378 (Shohbaxt Axmedov)\n\nAfter payment, send the receipt to @akhmedov_mailbox to confirm your order.`,
       { parse_mode: "HTML" }
     );
 
-    // 3. Send order details to the admin
+    // Notify admin
     await bot.sendMessage(
       ADMIN_CHAT_ID,
-      `<b>🚨 New Order Received!</b>\n
-<b>Name:</b> ${userName}
-<b>Username:</b> ${userHandle}
-<b>Phone Number:</b> ${phoneNumber}
-      \n<b>Order Details:</b>\n${productDetails}
-      \n<b>Total:</b> ${totalPrice}`,
+      `<b>🚨 New Order Received!</b>\n\n<b>Name:</b> ${userName}\n<b>Username:</b> ${userHandle}\n<b>Phone Number:</b> ${phoneNumber}\n\n<b>Order Details:</b>\n${productDetails}\n\n<b>Total:</b> ${totalPrice}`,
       { parse_mode: "HTML" }
     );
 
-    return res.status(200).json({});
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error processing order:", error);
-    return res.status(500).json({});
+    res.status(500).json({ error: "Internal server error." });
   }
 });
 
-app.listen(process.env.PORT || 8000, () => console.log("Server started!"));
+bot.on("polling_error", (error) => console.error("Polling error:", error));
+
+app.listen(process.env.PORT || 8000, () => console.log("Server started on port 8000"));
 
 main();
