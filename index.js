@@ -14,6 +14,7 @@ const webhookUrl = `https://turinmerch-server.onrender.com/webhook`;
 bot.setWebHook(webhookUrl);
 
 const main = () => {
+  const userPhoneNumbers = new Map();
   bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -42,7 +43,9 @@ const main = () => {
         }
       );
     }
-    if (msg.contact) {
+    if (msg.contact) {  
+      const phoneNumber = msg.contact.phone_number;
+    userPhoneNumbers.set(chatId, phoneNumber); // Store the phone number
       await bot.sendMessage(
         chatId,
         `
@@ -105,6 +108,7 @@ app.post("/web-data", async (req, res) => {
   const userHandle = user.username ? `@${user.username}` : "No username";
 
   try {
+    const phoneNumber = userPhoneNumbers.get(userID) || "Not provided";
     // Format the product details
     const productDetails = products
       .map((item, index) => {
@@ -160,6 +164,7 @@ app.post("/web-data", async (req, res) => {
       `<b>🚨 New Order Received!</b>\n
 <b>Name:</b> ${userName}
 <b>Username:</b> ${userHandle}
+<b>Phone Number:</b> ${phoneNumber}
       \n<b>Order Details:</b>\n${productDetails}
       \n<b>Total:</b> ${totalPrice}`,
       { parse_mode: "HTML" }
