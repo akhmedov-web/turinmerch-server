@@ -108,7 +108,7 @@ app.post("/web-data", async (req, res) => {
   const userHandle = user.username ? `@${user.username}` : "No username";
 
   try {
-    const phoneNumber = userPhoneNumbers.get(userID) || "Not provided";
+    const phoneNumber = userPhoneNumbers.get(userID);
     // Format the product details
     const productDetails = products
       .map((item, index) => {
