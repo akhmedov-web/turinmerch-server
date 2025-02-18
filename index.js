@@ -122,6 +122,10 @@ app.post("/web-data", async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('Bot is alive!');
+});
+
 bot.on("polling_error", (error) => console.error("Polling error:", error));
 
 app.listen(process.env.PORT || 8000, () => console.log("Server started on port 8000"));
