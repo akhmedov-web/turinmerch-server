@@ -23,7 +23,7 @@ const main = () => {
     if (text === "/start") {
       await bot.sendMessage(
         chatId,
-        `Assalomu alaykum <b>${msg.from.first_name}!</b> \nShare your phone number to get started!`,
+        `Assalomu aleykum <b>${msg.from.first_name}!</b> \nShare your phone number to get started!`,
         {
           parse_mode: "HTML",
           reply_markup: {
