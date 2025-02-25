@@ -89,7 +89,7 @@ bot.on("callback_query", async (query) => {
         
 Here, you’ll find exclusive items like hoodies, mugs, notebooks, and more, designed to showcase our university pride. 
                 
-For assistance or inquiries, reach out to us at: @akhmedov_mailbox
+For assistance or inquiries, reach out to us at: @dias_james
                 
 Shop easily, support the campus, and stay stylish! ✨
                 
@@ -97,7 +97,7 @@ Developed with care.`:`TTPUning rasming xaridlar boti! 👇
 
 Bu yerda siz universitetimiz brendini namoyish etishga mo‘ljallangan sviter, brilok va boshqa eksklyuziv buyumlarni topasiz.
 
-Yordam yoki savollar bo'yicha bizga murojaat qiling: @akhmedov_mailbox
+Yordam yoki savollar bo'yicha bizga murojaat qiling: @dias_james
 
 Osonlik bilan xarid qiling, kampusni qo‘llab-quvvatlang va doim zamonaviy ko‘rinishda qoling! ✨
 
@@ -193,8 +193,8 @@ app.post("/web-data", async (req, res) => {
       userID,
       `${
         userLang === "english"
-          ? `<b>Your order is successfully created ✅</b>\n\n<b>Order Details:</b>\n${productDetails}\n\n<b>Total:</b> ${totalPrice} \n\n<i>The admin will contact you soon.</i> \n\n<b>Contact:</b> \n📨 @akhmedov_mailbox \n☎️+998906701606`
-          : `<b>Buyurtmangiz muvaffaqqiyatli qabul qilindi✅</b>\n\n<b>Buyurtma tafsilotlari:</b>\n${productDetails}\n\n<b>Umumiy:</b> ${totalPrice} \n\n<i>Admin sizga buyurtma bo'yicha tez orada aloqaga chiqadi.</i> \n\n<b>Kontakt:</b> \n📨 @akhmedov_mailbox \n☎️+998906701606`
+          ? `<b>Your order is successfully created ✅</b>\n\n<b>Order Details:</b>\n${productDetails}\n\n<b>Total:</b> ${totalPrice} \n\n<i>The admin will contact you soon.</i> \n\n<b>Contact:</b> \n📨 @dias_james \n☎️+998909395458`
+          : `<b>Buyurtmangiz muvaffaqqiyatli qabul qilindi✅</b>\n\n<b>Buyurtma tafsilotlari:</b>\n${productDetails}\n\n<b>Umumiy:</b> ${totalPrice} \n\n<i>Admin sizga buyurtma bo'yicha tez orada aloqaga chiqadi.</i> \n\n<b>Kontakt:</b> \n📨 @dias_james \n☎️+998909395458`
       }`,
       {
         parse_mode: "HTML",
