@@ -144,7 +144,7 @@ bot.on("message", async (msg) => {
                 text: `${
                   userLang === "english" ? "Products 📦" : "Mahsulotlar 📦"
                 }`,
-                web_app: { url: "https://merch-polito.vercel.app/" },
+                web_app: { url: `https://merch-polito.vercel.app/${userLang === "uzbek" ? "uz" : "eng"}` },
               },
               {
                 text: `${
