@@ -93,7 +93,7 @@ For assistance or inquiries, reach out to us at: @dias_james
                 
 Shop easily, support the campus, and stay stylish! ✨
                 
-Developed with care.`:`TTPUning rasming xaridlar boti! 👇
+Developed with care.`:`TTPUning rasmiy xaridlar boti! 👇
 
 Bu yerda siz universitetimiz brendini namoyish etishga mo‘ljallangan sviter, brilok va boshqa eksklyuziv buyumlarni topasiz.
 
