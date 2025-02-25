@@ -84,7 +84,8 @@ bot.on("callback_query", async (query) => {
   if (query.data === "aboutOpt") {
     bot.sendMessage(
       chatId,
-      `TTPU's official merchandise bot!🎓
+
+      `${query.data==="english"?`TTPU's official merchandise bot!🎓
         
 Here, you’ll find exclusive items like hoodies, mugs, notebooks, and more, designed to showcase our university pride. 
                 
@@ -92,7 +93,15 @@ For assistance or inquiries, reach out to us at: @akhmedov_mailbox
                 
 Shop easily, support the campus, and stay stylish! ✨
                 
-Developed with care.`,
+Developed with care.`:`TTPUning rasming xaridlar boti! 👇
+
+Bu yerda siz universitetimiz brendini namoyish etishga mo‘ljallangan sviter, brilok va boshqa eksklyuziv buyumlarni topasiz.
+
+Yordam yoki savollar bo'yicha bizga murojaat qiling: @akhmedov_mailbox
+
+Osonlik bilan xarid qiling, kampusni qo‘llab-quvvatlang va doim zamonaviy ko‘rinishda qoling! ✨
+
+Developed with care.`}`,
       { parse_mode: "HTML" }
     );
   }
